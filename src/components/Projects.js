@@ -1,23 +1,55 @@
+import { useEffect, useState } from "react";
+import { FaGithub } from "react-icons/fa";
+
 const Projects = () => {
-    const projects = [
-      { title: "Portfolio Website", desc: "A personal portfolio built with MERN stack." },
-      { title: "E-Commerce App", desc: "A full-stack e-commerce platform with user authentication." }
-    ];
-  
-    return (
-      <section id="projects" className="p-10 bg-gray-100 text-center">
-        <h2 className="text-4xl font-bold mb-6">Projects</h2>
-        <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-          {projects.map((proj, i) => (
-            <div key={i} className="bg-white p-5 shadow-lg rounded-lg hover:shadow-xl transition">
-              <h3 className="text-xl font-semibold mb-2">{proj.title}</h3>
-              <p className="text-gray-600">{proj.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-    );
-  };
-  
-  export default Projects;
-  
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+
+  // Fetch projects from backend API
+  useEffect(() => {
+    fetch("http://localhost:5000/api/projects")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch projects");
+        return res.json();
+      })
+      .then((data) => setProjects(data))
+      .catch((e) => setErr(e.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <section id="projects" className="p-10 bg-gray-100 text-center">
+      <h2 className="text-4xl font-bold mb-6">Projects</h2>
+
+      {loading && <p>Loading projects...</p>}
+      {err && <p className="text-red-600">Error: {err}</p>}
+
+      <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+        {projects.map((proj) => (
+          <div
+            key={proj._id}
+            className="bg-white p-5 shadow-lg rounded-lg hover:shadow-xl transition text-left"
+          >
+            <h3 className="text-xl font-semibold mb-2">{proj.title}</h3>
+            <p className="text-gray-600 mb-4">{proj.description}</p>
+
+            {proj.link && (
+              <a
+                href={proj.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-md hover:bg-gray-900 transition"
+              >
+                <FaGithub size={18} />
+                View on GitHub
+              </a>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+export default Projects;
