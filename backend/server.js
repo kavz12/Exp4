@@ -31,10 +31,12 @@ mongoose
 import skillsRoutes from "./routes/skills.js";
 import projectsRoutes from "./routes/projects.js";
 import bioRoutes from "./routes/bio.js"; // ✅ new bio route
+import contactRoutes from "./routes/contact.js";
 
 app.use("/api/skills", skillsRoutes);
 app.use("/api/projects", projectsRoutes);
 app.use("/api/bio", bioRoutes); // ✅ register bio API
+app.use("/api/contact", contactRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 5000;
