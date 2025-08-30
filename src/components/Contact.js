@@ -7,15 +7,35 @@ const Contact = () => {
     message: "",
   });
   const [responseMessage, setResponseMessage] = useState("");
+  const [emailError, setEmailError] = useState(""); // ✅ for live validation
+
+  // ✅ Email regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   // Handle input change
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    // Live email validation
+    if (name === "email") {
+      if (!emailRegex.test(value)) {
+        setEmailError("Invalid email format");
+      } else {
+        setEmailError("");
+      }
+    }
   };
 
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Prevent submission if email is invalid
+    if (emailError) {
+      setResponseMessage("❌ Please fix the errors before submitting.");
+      return;
+    }
 
     try {
       const res = await fetch("http://localhost:5000/api/contact", {
@@ -53,15 +73,24 @@ const Contact = () => {
           className="w-full p-3 mb-4 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         />
+
         <input
           type="email"
           name="email"
           placeholder="Your Email"
           value={formData.email}
           onChange={handleChange}
-          className="w-full p-3 mb-4 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={`w-full p-3 mb-2 border rounded focus:outline-none focus:ring-2 ${
+            emailError
+              ? "border-red-500 focus:ring-red-500"
+              : "focus:ring-blue-500"
+          }`}
           required
         />
+        {emailError && (
+          <p className="text-red-500 text-sm mb-3">{emailError}</p>
+        )}
+
         <textarea
           name="message"
           placeholder="Your Message"
@@ -71,6 +100,7 @@ const Contact = () => {
           rows="4"
           required
         ></textarea>
+
         <button
           type="submit"
           className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"

@@ -1,9 +1,15 @@
 import mongoose from "mongoose";
 
 const contactSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true },
-  message: { type: String, required: true },
+  name: { type: String, required: true, trim: true },
+  email: {
+    type: String,
+    required: true,
+    lowercase: true,
+    trim: true,
+    match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email format"], // DB validation
+  },
+  message: { type: String, required: true, trim: true },
   createdAt: { type: Date, default: Date.now },
 });
 

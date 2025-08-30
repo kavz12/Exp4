@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { FaGithub } from "react-icons/fa";
+import AddProject from "./AddProject";
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
-  // Fetch projects from backend API
-  useEffect(() => {
+  // ✅ Fetch projects from backend API
+  const fetchProjects = () => {
     fetch("http://localhost:5000/api/projects")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch projects");
@@ -16,6 +17,10 @@ const Projects = () => {
       .then((data) => setProjects(data))
       .catch((e) => setErr(e.message))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchProjects();
   }, []);
 
   return (
@@ -25,6 +30,12 @@ const Projects = () => {
       {loading && <p>Loading projects...</p>}
       {err && <p className="text-red-600">Error: {err}</p>}
 
+      {/* ✅ Add Project Form */}
+      <div className="max-w-lg mx-auto mb-10">
+        <AddProject onProjectAdded={fetchProjects} />
+      </div>
+
+      {/* ✅ Project List */}
       <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
         {projects.map((proj) => (
           <div

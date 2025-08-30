@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react";
+import AddSkill from "./AddSkill";
 
 const Skills = () => {
   const [skills, setSkills] = useState([]);
 
   // ✅ Fetch skills from backend API
-  useEffect(() => {
+  const fetchSkills = () => {
     fetch("http://localhost:5000/api/skills")
       .then((res) => res.json())
       .then((data) => setSkills(data))
       .catch((err) => console.error("Error fetching skills:", err));
+  };
+
+  useEffect(() => {
+    fetchSkills();
   }, []);
 
+  // Certificates (Static)
   const certificates = [
     {
       name: "React.js Certificate",
@@ -50,7 +56,12 @@ const Skills = () => {
         )}
       </div>
 
-      {/* Certificates Section (still static) */}
+      {/* ✅ AddSkill Form (updates DB + refreshes list) */}
+      <div className="max-w-lg mx-auto mb-12">
+        <AddSkill onSkillAdded={fetchSkills} />
+      </div>
+
+      {/* Certificates Section */}
       <h3 className="text-2xl font-semibold mb-6">Certificates</h3>
       <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
         {certificates.map((cert, i) => (

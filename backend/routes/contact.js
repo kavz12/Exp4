@@ -3,47 +3,40 @@ import Contact from "../models/Contact.js";
 
 const router = express.Router();
 
-// @route   POST /api/contact
-// @desc    Add new contact message
+// ✅ Email regex (for quick backend validation)
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// ✅ Get all contact messages
+router.get("/", async (req, res) => {
+  try {
+    const contacts = await Contact.find();
+    res.json(contacts);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ✅ Create contact message with email validation
 router.post("/", async (req, res) => {
   try {
     const { name, email, message } = req.body;
 
+    // Check required fields
     if (!name || !email || !message) {
-      return res.status(400).json({ error: "All fields are required" });
+      return res.status(400).json({ message: "All fields are required" });
     }
 
-    const newContact = new Contact({ name, email, message });
-    await newContact.save();
-
-    res.status(201).json({ message: "Contact saved successfully", newContact });
-  } catch (error) {
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-// @route   GET /api/contact
-// @desc    Get all contact messages
-router.get("/", async (req, res) => {
-  try {
-    const contacts = await Contact.find().sort({ createdAt: -1 });
-    res.json(contacts);
-  } catch (error) {
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-// @route   DELETE /api/contact/:id
-// @desc    Delete a contact message
-router.delete("/:id", async (req, res) => {
-  try {
-    const deleted = await Contact.findByIdAndDelete(req.params.id);
-    if (!deleted) {
-      return res.status(404).json({ error: "Message not found" });
+    // Validate email format before saving
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
     }
-    res.json({ message: "Message deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ error: "Server error" });
+
+    const contact = new Contact({ name, email, message });
+    await contact.save();
+
+    res.json({ message: "✅ Contact saved successfully", contact });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 

@@ -8,6 +8,4 @@ const bioSchema = new mongoose.Schema({
   location: { type: String, required: true },
 });
 
-const Bio = mongoose.model("Bio", bioSchema);
-
-export default Bio;
+export default mongoose.model("Bio", bioSchema);
