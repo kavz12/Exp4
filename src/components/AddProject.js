@@ -1,73 +1,62 @@
 import { useState } from "react";
 
-const AddProject = ({ onProjectAdded }) => {
-  const [project, setProject] = useState({
+const AddProject = ({ fetchProjects }) => {
+  const token = localStorage.getItem("token");
+  const [form, setForm] = useState({
     title: "",
     description: "",
-    link: "",
+    github: "", // ✅ New field
   });
 
-  const handleChange = (e) => {
-    setProject({ ...project, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const res = await fetch("http://localhost:5000/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(project),
-      });
-
-      if (res.ok) {
-        alert("✅ Project added!");
-        setProject({ title: "", description: "", link: "" });
-
-        // 🔄 Refresh list in Projects.js
-        if (onProjectAdded) onProjectAdded();
-      } else {
-        alert("❌ Failed to add project");
-      }
-    } catch (err) {
-      console.error(err);
+    const res = await fetch("http://localhost:5000/api/projects", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(form),
+    });
+    if (res.ok) {
+      setForm({ title: "", description: "", github: "" });
+      fetchProjects();
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="p-6 bg-white shadow rounded max-w-md mx-auto"
-    >
-      <h2 className="text-2xl font-bold mb-4">Add Project</h2>
+    <form onSubmit={handleSubmit} className="space-y-2">
       <input
         type="text"
         name="title"
-        value={project.title}
-        onChange={handleChange}
         placeholder="Project Title"
-        className="w-full p-2 border rounded mb-2"
+        value={form.title}
+        onChange={handleChange}
+        className="border p-2 w-full"
         required
       />
       <textarea
         name="description"
-        value={project.description}
-        onChange={handleChange}
         placeholder="Project Description"
-        className="w-full p-2 border rounded mb-2"
+        value={form.description}
+        onChange={handleChange}
+        className="border p-2 w-full"
         required
       />
       <input
-        type="text"
-        name="link"
-        value={project.link}
+        type="url"
+        name="github"
+        placeholder="GitHub Link"
+        value={form.github}
         onChange={handleChange}
-        placeholder="Project Link (GitHub/Live Demo)"
-        className="w-full p-2 border rounded mb-4"
+        className="border p-2 w-full"
       />
       <button
         type="submit"
-        className="bg-green-600 text-white px-4 py-2 rounded"
+        className="bg-green-600 text-white px-3 py-1 rounded"
       >
         Add Project
       </button>

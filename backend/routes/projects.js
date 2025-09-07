@@ -1,37 +1,20 @@
 import express from "express";
 import Project from "../models/Project.js";
+import { verifyToken, requireAdmin } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// ➤ Get all projects
+// Get projects
 router.get("/", async (req, res) => {
-  try {
-    const projects = await Project.find();
-    res.json(projects);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
+  const projects = await Project.find();
+  res.json(projects);
 });
 
-// ➤ Add new project
-router.post("/", async (req, res) => {
-  try {
-    const newProject = new Project(req.body);
-    await newProject.save();
-    res.status(201).json(newProject);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-// ➤ Delete project
-router.delete("/:id", async (req, res) => {
-  try {
-    await Project.findByIdAndDelete(req.params.id);
-    res.json({ message: "Project deleted" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
+// Add project (Admin only)
+router.post("/", verifyToken, requireAdmin, async (req, res) => {
+  const project = new Project(req.body);
+  await project.save();
+  res.json(project);
 });
 
 export default router;
